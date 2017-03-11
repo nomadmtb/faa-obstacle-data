@@ -50,3 +50,15 @@ class Obstacle(models.Model):
     faa_study_id = models.CharField(max_length=250, null=True)
     action = models.CharField(max_length=1, choices=ACTION_CHOICES)
     action_date = models.DateField()
+
+
+class Airport(models.Model):
+
+    name = models.CharField(max_length=250)
+    city = models.CharField(max_length=250, null=True)
+    country = models.CharField(max_length=250, null=True)
+    iata = models.CharField(max_length=3, null=True)
+    icao = models.CharField(max_length=4, null=True)
+    lat = models.FloatField()
+    long = models.FloatField()
+    altitude = models.IntegerField()

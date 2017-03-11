@@ -23,6 +23,16 @@ class Obstacle(models.Model):
         ('D', 'Dismantle'),
     )
 
+    MARK_INDICATOR_CHOICES = (
+        ('P', 'Orange or Orange and White Paint'),
+        ('W', 'White Paint Only'),
+        ('M', 'Marked'),
+        ('F', 'Flag Marker'),
+        ('S', 'Spherical Marker'),
+        ('N', 'None'),
+        ('U', 'Unknown'),
+    )
+
     id = models.IntegerField(primary_key=True)
     country = models.CharField(max_length=10)
     state = models.CharField(max_length=10)
@@ -34,8 +44,9 @@ class Obstacle(models.Model):
     agl_height = models.IntegerField()
     amsl_height = models.IntegerField()
     lighting = models.CharField(max_length=1, choices=LIGHTING_CHOICES)
-    horizontal_accuracy = models.IntegerField()
-    vertical_accuracy = models.IntegerField()
-    faa_study_id = models.CharField(max_length=250)
+    horizontal_accuracy = models.FloatField(null=True)
+    vertical_accuracy = models.FloatField(null=True)
+    mark_indicator = models.CharField(max_length=1, choices=MARK_INDICATOR_CHOICES)
+    faa_study_id = models.CharField(max_length=250, null=True)
     action = models.CharField(max_length=1, choices=ACTION_CHOICES)
-    action_date = models.DateTimeField()
+    action_date = models.DateField()

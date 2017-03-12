@@ -51,6 +51,10 @@ class Obstacle(models.Model):
     action = models.CharField(max_length=1, choices=ACTION_CHOICES)
     action_date = models.DateField()
 
+    def __repr__(self):
+        return "<Obstacle:id={0},country={1},lat={2},long={3}...>".format(
+            self.id, self.country, self.lat, self.long
+        )
 
 class Airport(models.Model):
 
@@ -62,3 +66,8 @@ class Airport(models.Model):
     lat = models.FloatField(db_index=True)
     long = models.FloatField(db_index=True)
     altitude = models.IntegerField()
+
+    def __repr__(self):
+        return "<Airport:id={0},icao={1},iata={2}...>".format(
+            self.id, self.icao, self.iata
+        )

@@ -8,12 +8,12 @@ class CalculateRouteView(View):
 
     def get(self, request):
         raw_path = request.GET.get('route', None)
+        airports = None
 
         if raw_path:
             airports = self.__get_airport_route(raw_path)
-            print(airports)
-        else:
-            pass
+
+        print(airports)
 
         return HttpResponse('result')
 

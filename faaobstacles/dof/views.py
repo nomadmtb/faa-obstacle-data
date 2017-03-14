@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views import View
 from .models import Airport
+from dof.utils.coords import RouteCalculator
 
 
 # Create your views here.
@@ -13,7 +14,10 @@ class CalculateRouteView(View):
         if raw_path:
             airports = self.__get_airport_route(raw_path)
 
-        print(airports)
+        if airports:
+            my_route = RouteCalculator(airports)
+            my_route.calculate()
+
 
         return HttpResponse('result')
 

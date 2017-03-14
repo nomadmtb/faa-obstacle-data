@@ -1,6 +1,6 @@
 from django.db import models
 
-# Create your models here.
+# This model will represent an Obstacle object identified by the FAA.
 class Obstacle(models.Model):
 
     LIGHTING_CHOICES = (
@@ -56,6 +56,7 @@ class Obstacle(models.Model):
             self.id, self.country, self.lat, self.long
         )
 
+# This model will represent an Airport that we will use to build routes etc.
 class Airport(models.Model):
 
     name = models.CharField(max_length=250)

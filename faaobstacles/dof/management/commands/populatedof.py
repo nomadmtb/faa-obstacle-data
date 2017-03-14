@@ -4,8 +4,10 @@ from dof.utils import conversions as conv
 from dof.utils import coords
 import csv, progressbar
 
+# This command will drop and reload all Airports and Obstacles from the
+# following positional arguments > DOF.DAT FAA file, Airport CSV data.
 class Command(BaseCommand):
-    help = 'Deletes and reloads all of the DOF Obstacle data'
+    help = 'Deletes and reloads all of the DOF Obstacle+Airport data'
 
     def add_arguments(self, parser):
         parser.add_argument('dof_filepath', nargs=1, type=str)

@@ -39,6 +39,8 @@ class RouteCalculator(object):
             start_airport = self.__airports[ leg_index[0] ]
             end_airport = self.__airports[ leg_index[1] ]
 
+            #print("{0}, {1}".format(start_airport.iata, end_airport.iata))
+
             coords = [point for point in self.__generate_coordinates(
                 start_airport, end_airport
             )]
@@ -47,9 +49,9 @@ class RouteCalculator(object):
                 print("{0},{1}".format(i[0],i[1]))
 
 
-    # This generator will build the list of coordinates that we can query
+    # This function will build the list of coordinates that we can query
     # against the database to build the collection of Obstacles.
-    def __generate_coordinates(self, start_location, end_location, increment_miles=2):
+    def __generate_coordinates(self, start_location, end_location, increment_miles=15):
         results = []
 
         # Step that we will use to increment our h
@@ -66,12 +68,15 @@ class RouteCalculator(object):
 
         # Calculate slope and theta
         theta = math.atan( (end[1] - start[1]) / (end[0] - start[0]) )
-        slope_x_dir = -1 if (start[0] > end[0]) else 1
-        slope_y_dir = -1 if (start[1] > end[1]) else 1
+
+        is_decreasing = 1 if end[1] > start[1] else -1
+        direction = -1*is_decreasing if (math.degrees(theta) < 0.00) else 1*is_decreasing
+
 
         while distance_traveled < distance_to_travel:
-            calculated_delta = (math.cos(theta) * distance_traveled * slope_x_dir, math.sin(theta) * distance_traveled * slope_y_dir,)
-            new_point = (start[0]+calculated_delta[0], start[1]+calculated_delta[1],)
+
+            calculated_delta = (math.cos(theta) * distance_traveled, math.sin(theta) * distance_traveled,)
+            new_point = (start[0]+(calculated_delta[0] * direction), (start[1]+calculated_delta[1] * direction),)
 
             results.append(new_point)
 

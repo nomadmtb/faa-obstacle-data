@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.gis.db import models as geo_models
 
 # This model will represent an Obstacle object identified by the FAA.
 class Obstacle(models.Model):
@@ -37,8 +38,7 @@ class Obstacle(models.Model):
     country = models.CharField(max_length=10)
     state = models.CharField(max_length=10)
     city = models.CharField(max_length=50)
-    lat = models.FloatField(db_index=True)
-    long = models.FloatField(db_index=True)
+    location = geo_models.PointField(null=True)
     type_desc = models.CharField(max_length=25)
     quantity = models.IntegerField()
     agl_height = models.IntegerField()
@@ -64,8 +64,7 @@ class Airport(models.Model):
     country = models.CharField(max_length=250, null=True)
     iata = models.CharField(max_length=3, null=True, db_index=True)
     icao = models.CharField(max_length=4, null=True, db_index=True)
-    lat = models.FloatField(db_index=True)
-    long = models.FloatField(db_index=True)
+    location = geo_models.PointField(null=True)
     altitude = models.IntegerField()
 
     def __repr__(self):

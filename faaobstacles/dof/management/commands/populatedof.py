@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.contrib.gis.geos import Point, fromstr
 from dof.models import Obstacle, Airport
 from dof.utils import conversions as conv
 from dof.utils import coords
@@ -59,11 +60,18 @@ class Command(BaseCommand):
                 action_date = raw_line[114:121]
                 data['action_date'] = conv.julian_to_date(action_date)
 
-                data['lat'] = coords.deg_min_sec_to_decimal(
+                lat = coords.deg_min_sec_to_decimal(
                     lat_deg, lat_min, lat_sec
                 )
-                data['long'] = coords.deg_min_sec_to_decimal(
+
+                long = coords.deg_min_sec_to_decimal(
                     long_deg, long_min, long_sec
+                )
+
+                data['location'] = fromstr(
+                    "POINT({0} {1})".format(
+                        long, lat
+                    )
                 )
 
                 new_obstacle = Obstacle(**data)
@@ -97,9 +105,16 @@ class Command(BaseCommand):
                 data['country'] = row[3] if row[3] else None
                 data['iata'] = row[4] if len(row[4]) > 2 else None
                 data['icao'] = row[5] if len(row[5]) > 2 else None
-                data['lat'] = float(row[6])
-                data['long'] = float(row[7])
                 data['altitude'] = int(row[8])
+
+                lat = float(row[6])
+                long = float(row[7])
+
+                data['location'] = fromstr(
+                    "POINT({0} {1})".format(
+                        long, lat
+                    )
+                )
 
                 new_airport = Airport(**data)
                 new_airport.save()

@@ -70,7 +70,7 @@ class Command(BaseCommand):
 
                 data['location'] = fromstr(
                     "POINT({0} {1})".format(
-                        long, lat
+                        lat, long
                     )
                 )
 
@@ -112,7 +112,7 @@ class Command(BaseCommand):
 
                 data['location'] = fromstr(
                     "POINT({0} {1})".format(
-                        long, lat
+                        lat, long
                     )
                 )
 

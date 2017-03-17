@@ -1,5 +1,3 @@
-from geopy.distance import distance as geopy_distance
-from django.contrib.gis.measure import Distance
 import math
 
 def deg_min_sec_to_decimal(deg, min, sec):
@@ -36,54 +34,55 @@ class RouteCalculator(object):
     # between the two points in the leg you can use trig to get the coordinate
     # changes that need to get applied to the coordinates.
     def __calculate_legs(self):
-        for leg_index in self.__leg_indexes:
+        for leg_index in list(self.__leg_indexes):
+
             start_airport = self.__airports[ leg_index[0] ]
             end_airport = self.__airports[ leg_index[1] ]
 
-            for i in self.__generate_coordinates(start_airport, end_airport):
-                print(i)
+            coords = [point for point in self.__generate_coordinates(
+                start_airport, end_airport
+            )]
+
+            for i in coords:
+                print("{0},{1}".format(i[0],i[1]))
 
 
     # This generator will build the list of coordinates that we can query
     # against the database to build the collection of Obstacles.
-    def __generate_coordinates(self, start_location, end_location, increment_miles=5):
+    def __generate_coordinates(self, start_location, end_location, increment_miles=2):
+        results = []
 
+        # Step that we will use to increment our h
         degrees_increment = increment_miles * 0.0144927
 
-        m_slope = (end_location.location.get_coords()[0] - start_location.location.get_coords()[0]) \
-            / (end_location.location.get_coords()[1] - start_location.location.get_coords()[1])
+        start = start_location.location.get_coords()
+        end = end_location.location.get_coords()
 
-        total_distance = math.sqrt(
-            math.pow((end_location.location.get_coords()[1] - start_location.location.get_coords()[1]), 2) \
-            + math.pow((end_location.location.get_coords()[0] - start_location.location.get_coords()[0]), 2)
+        distance_to_travel = math.sqrt(
+            math.pow(end[0] - start[0], 2) + math.pow(end[1] - start[1], 2)
         )
 
-        #print("Slope: {0}".format(m_slope))
-        theta = math.atan(m_slope)
-        #print("theta: {0}".format(theta))
+        distance_traveled = 0.00
 
-        current_x = start_location.location.get_coords()[1]
-        current_y = start_location.location.get_coords()[0]
+        # Calculate slope and theta
+        theta = math.atan( (end[1] - start[1]) / (end[0] - start[0]) )
+        slope_x_dir = -1 if (start[0] > end[0]) else 1
+        slope_y_dir = -1 if (start[1] > end[1]) else 1
 
-        degrees_traveled = 0.00
-        completed = False
+        while distance_traveled < distance_to_travel:
+            calculated_delta = (math.cos(theta) * distance_traveled * slope_x_dir, math.sin(theta) * distance_traveled * slope_y_dir,)
+            new_point = (start[0]+calculated_delta[0], start[1]+calculated_delta[1],)
 
-        while True:
+            results.append(new_point)
 
-            if completed:
-                return
+            distance_traveled += degrees_increment
 
-            if degrees_traveled + degrees_increment > total_distance:
-                completed = True
-                yield (end_location.location.get_coords()[0], end_location.location.get_coords()[1],)
+            if abs(distance_traveled) >= distance_to_travel:
+                break
 
-            current_x += math.cos(theta)
-            current_y += math.sin(theta)
+        results.append(end)
 
-            yield (current_y, current_x)
-
-            degrees_traveled += degrees_increment
-
+        return results
 
     # Entrypoint to calculate the points and pull the nearby Obstacles from the
     # backend.

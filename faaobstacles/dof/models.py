@@ -1,5 +1,5 @@
 from django.db import models
-import json
+
 
 # This model will represent an Obstacle object identified by the FAA.
 class Obstacle(models.Model):
@@ -65,7 +65,7 @@ class Obstacle(models.Model):
             field_obj = getattr(self, field)
             data[field] = field_obj
 
-        return json.dumps(data)
+        return data
 
     @property
     def location(self):
@@ -103,7 +103,7 @@ class Airport(models.Model):
             field_obj = getattr(self, field)
             data[field] = field_obj
 
-        return json.dumps(data)
+        return data
 
     @property
     def location(self):

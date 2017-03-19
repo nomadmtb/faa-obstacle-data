@@ -12,4 +12,4 @@ def test():
     ]
 
     calculator = RouteCalculator(route)
-    calculator.calculate()
+    return calculator.calculate()

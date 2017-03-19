@@ -1,8 +1,12 @@
 from django.db import models
-
+import json
 
 # This model will represent an Obstacle object identified by the FAA.
 class Obstacle(models.Model):
+
+    SERIALIZEABLE_FIELDS = [
+        'id', 'latitude', 'longitude', 'type_desc', 'amsl_height'
+    ]
 
     LIGHTING_CHOICES = (
         ('R', 'Red'),
@@ -53,6 +57,17 @@ class Obstacle(models.Model):
     action_date = models.DateField()
 
     @property
+    def to_dict(self):
+
+        data = {}
+
+        for field in self.SERIALIZEABLE_FIELDS:
+            field_obj = getattr(self, field)
+            data[field] = field_obj
+
+        return json.dumps(data)
+
+    @property
     def location(self):
         return (self.latitude, self.longitude,)
 
@@ -61,8 +76,14 @@ class Obstacle(models.Model):
             self.id, self.country, self.latitude, self.longitude
         )
 
+
 # This model will represent an Airport that we will use to build routes etc.
 class Airport(models.Model):
+
+    SERIALIZEABLE_FIELDS = [
+        'id', 'name', 'city', 'country', 'iata', 'icao', 'latitude',
+        'longitude', 'altitude'
+    ]
 
     name = models.CharField(max_length=250)
     city = models.CharField(max_length=250, null=True)
@@ -72,6 +93,17 @@ class Airport(models.Model):
     latitude = models.FloatField(null=True, db_index=True)
     longitude = models.FloatField(null=True, db_index=True)
     altitude = models.IntegerField()
+
+    @property
+    def to_dict(self):
+
+        data = {}
+
+        for field in self.SERIALIZEABLE_FIELDS:
+            field_obj = getattr(self, field)
+            data[field] = field_obj
+
+        return json.dumps(data)
 
     @property
     def location(self):

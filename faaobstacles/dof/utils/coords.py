@@ -138,12 +138,17 @@ class RouteCalculator(object):
 
     # Use the generated query_set to pull the appropriate Obstacles from the
     # backend model.
-    def __pull_obstacles(self):
+    def __get_obstacles(self):
 
-        obstacles = Obstacle.objects.filter(self.__query_set).distinct()
+        result = {}
 
-        for i in obstacles:
-            print("{0}, {1}".format(i.latitude, i.longitude))
+        result['leg_indexes'] = self.__leg_indexes
+        result['airports'] = self.__airports
+
+        result['obstacles'] = Obstacle.objects.filter(self.__query_set).distinct()
+
+        return result
+
 
     # Entrypoint to calculate the points and pull the nearby Obstacles from the
     # backend.
@@ -152,4 +157,5 @@ class RouteCalculator(object):
         self.__get_legs()
         self.__calculate_legs()
         self.__build_query_set()
-        self.__pull_obstacles()
+
+        return self.__get_obstacles()

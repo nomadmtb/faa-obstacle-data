@@ -57,8 +57,8 @@ class RouteCalculator(object):
         # Step that we will use to increment our h
         degrees_increment = increment_miles * 0.0144927
 
-        start = start_location.location.get_coords()
-        end = end_location.location.get_coords()
+        start = start_location.location
+        end = end_location.location
 
         distance_to_travel = math.sqrt(
             math.pow(end[0] - start[0], 2) + math.pow(end[1] - start[1], 2)

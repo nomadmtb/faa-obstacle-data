@@ -1,4 +1,7 @@
-import math
+from django.db.models import Q
+from dof.models import Obstacle
+import math, pdb
+
 
 def deg_min_sec_to_decimal(deg, min, sec):
     direction = 1.0
@@ -13,11 +16,18 @@ def deg_min_sec_to_decimal(deg, min, sec):
 # for each leg.
 class RouteCalculator(object):
 
-    # Init our calculator class
-    def __init__(self, airports):
+    # Init our calculator class. The distance you can see at 35,000 feet is
+    # about 230 miles in each direction.
+    def __init__(self, airports, search_radius_mi=230, query_point_resolution_mi=75):
+        self.__query_point_resolution_mi = query_point_resolution_mi
+        self.__search_radius_miles = search_radius_mi
         self.__airports = airports
+        self.__query_set = Q()
+        self.__query_points = []
         self.__leg_indexes = []
         self.__results = []
+
+        self.__DEGREES_TO_MILES = 0.0144927
 
     # Calculate the legs of the trip. We can calculate distances for each of
     # these. These are indexes into the self.__airports array.
@@ -34,28 +44,29 @@ class RouteCalculator(object):
     # between the two points in the leg you can use trig to get the coordinate
     # changes that need to get applied to the coordinates.
     def __calculate_legs(self):
-        for leg_index in list(self.__leg_indexes):
 
-            start_airport = self.__airports[ leg_index[0] ]
-            end_airport = self.__airports[ leg_index[1] ]
+        for leg_index in range(len(self.__leg_indexes)):
 
-            #print("{0}, {1}".format(start_airport.iata, end_airport.iata))
+            self.__query_points.append([])
+
+            start_airport = self.__airports[ self.__leg_indexes[leg_index][0] ]
+            end_airport = self.__airports[ self.__leg_indexes[leg_index][1] ]
 
             coords = [point for point in self.__generate_coordinates(
                 start_airport, end_airport
             )]
 
             for i in coords:
-                print("{0},{1}".format(i[0],i[1]))
+                self.__query_points[ leg_index ].append(i)
 
 
     # This function will build the list of coordinates that we can query
     # against the database to build the collection of Obstacles.
-    def __generate_coordinates(self, start_location, end_location, increment_miles=15):
+    def __generate_coordinates(self, start_location, end_location, increment_miles=230):
         results = []
 
         # Step that we will use to increment our h
-        degrees_increment = increment_miles * 0.0144927
+        degrees_increment = self.__query_point_resolution_mi * self.__DEGREES_TO_MILES
 
         start = start_location.location
         end = end_location.location
@@ -89,9 +100,56 @@ class RouteCalculator(object):
 
         return results
 
+    # This function will build the appropriate query_set to match the Obstacles
+    # in the database. Will use filter() on this set to pull Obstacles along the
+    # route.
+    def __build_query_set(self):
+
+        for leg_index in range(len(self.__query_points)):
+
+            start_point = self.__query_points[leg_index][0]
+            end_point = self.__query_points[leg_index][-1]
+
+            # Want a 25% overlap on filters. If floor is < 1 set h_offset to 1.
+            h_offset = 0.00
+            if math.floor(self.__search_radius_miles * 0.25) < 1:
+                h_offset = 1
+            else:
+                h_offset = math.floor(self.__search_radius_miles * 0.25)
+
+            theta = math.atan( (end_point[1] - start_point[1]) / (end_point[0] - start_point[0]) )
+            calculated_delta = (abs(math.cos(theta) * h_offset), abs(math.sin(theta) * h_offset),)
+
+            # Change the calculated_delta from miles to degrees...
+            calculated_delta = (calculated_delta[0] * self.__DEGREES_TO_MILES, calculated_delta[1] * self.__DEGREES_TO_MILES,)
+
+            for point in self.__query_points[ leg_index ]:
+                # point = (5.343234234, -122.123123212)
+                new_q = Q(
+                    latitude__gte=(point[0] - calculated_delta[0]),
+                    latitude__lte=(point[0] + calculated_delta[0]),
+                    longitude__gte=(point[1] - calculated_delta[1]),
+                    longitude__lte=(point[1] + calculated_delta[1]),
+                )
+
+                # append new Q to our query_set
+                self.__query_set.add(new_q, Q.OR)
+
+
+    # Use the generated query_set to pull the appropriate Obstacles from the
+    # backend model.
+    def __pull_obstacles(self):
+
+        obstacles = Obstacle.objects.filter(self.__query_set).distinct()
+
+        for i in obstacles:
+            print("{0}, {1}".format(i.latitude, i.longitude))
+
     # Entrypoint to calculate the points and pull the nearby Obstacles from the
     # backend.
     def calculate(self):
 
         self.__get_legs()
         self.__calculate_legs()
+        self.__build_query_set()
+        self.__pull_obstacles()

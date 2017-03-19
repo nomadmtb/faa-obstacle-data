@@ -57,8 +57,8 @@ class Obstacle(models.Model):
         return (self.latitude, self.longitude,)
 
     def __repr__(self):
-        return "<Obstacle:id={0},country={1},lat={2},long={3}...>".format(
-            self.id, self.country, self.lat, self.long
+        return "<Obstacle:id={0},country={1},latitude={2},longitude={3}...>".format(
+            self.id, self.country, self.latitude, self.longitude
         )
 
 # This model will represent an Airport that we will use to build routes etc.

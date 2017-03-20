@@ -17,4 +17,8 @@ A visual representation of the obstacle data from the FAA.  Tool will calculate 
 # WIP
 1. Build out the airport and obstacle routes.
 
-2. ???
+2. Documentation on routes.
+
+3. Publish code to AWS EC2.
+
+4. Docker deployment scripts.

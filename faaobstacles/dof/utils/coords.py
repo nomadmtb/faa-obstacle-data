@@ -1,6 +1,6 @@
 from django.db.models import Q
 from dof.models import Obstacle
-import math, pdb
+import math
 
 
 def deg_min_sec_to_decimal(deg, min, sec):
@@ -146,6 +146,8 @@ class RouteCalculator(object):
         result['airports'] = self.__airports
 
         result['obstacles'] = Obstacle.objects.filter(self.__query_set).distinct()
+        result['query_resolution_mi'] = self.__query_point_resolution_mi
+        result['search_radius_mi'] = self.__search_radius_miles
 
         return result
 

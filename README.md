@@ -1,3 +1,5 @@
+![faa](http://i.imgur.com/Fl8fjF9.jpg =200x)
+
 # faa-obstacle-data
 A visual representation of the obstacle data from the FAA.  Tool will calculate the number of obstacles between a set of airports.
 
@@ -13,8 +15,6 @@ A visual representation of the obstacle data from the FAA.  Tool will calculate 
 
 
 # WIP
-1. Generate the set of distances between each point. 26 miles split with 5 miles will be 5,5,5,5,1.
+1. Build out the airport and obstacle routes.
 
-2. With the above list of distances we can compute the coordinates for all of these. With slope and trig functions.
-
-3. Query the backend to see what points are within x distance from each point. Not sure about this yet.
+2. ???

@@ -1,4 +1,4 @@
-![faa](http://i.imgur.com/Fl8fjF9.jpg)
+![faa](http://i.imgur.com/LINa8X5.jpg)
 
 # faa-obstacle-data
 A visual representation of the obstacle data from the FAA.  Tool will calculate the number of obstacles between a set of airports.

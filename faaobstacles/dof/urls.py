@@ -18,7 +18,7 @@ from .views import CalculateRouteView
 
 urlpatterns = [
     url(
-        r'^api/calculate_obstacles$',
+        r'route_obstacles$',
         CalculateRouteView.as_view(),
         name='CalculateRouteView'
     ),

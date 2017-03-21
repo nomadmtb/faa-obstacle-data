@@ -80,10 +80,12 @@ class CalculateRouteView(View):
                     try:
                         new_airport = Airport.objects.get(icao=code)
                     except Airport.DoesNotExist:
-                        results['malformed'].append(code)
+                        pass
 
-                else:
+                if new_airport:
                     results['airports'].append(new_airport)
+                else:
+                    results['malformed'].append(code)
 
         return results
 
